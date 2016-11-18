@@ -1,7 +1,6 @@
 package com.nidlab.kinect 
 {
 	import flash.media.Camera;
-	import mirrorScreen.Configuration;
 	/**
 	 * ...
 	 * @author Linhdoha
