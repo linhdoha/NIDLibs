@@ -61,11 +61,20 @@ package com.nidlab.kinect
 		}
 		
 		public function get running():Boolean {
-			return process.running;
+			if (NativeProcess.isSupported) {
+				return process.running;
+			} else {
+				trace("NativeProcess is not supported.");
+				return false;
+			}
 		}
 		
 		public function exit():void {
-			process.exit(true);
+			if (NativeProcess.isSupported) {
+				process.exit(true);
+			} else {
+				trace("NativeProcess is not supported.");
+			}
 		}
 		
 		private function onProcessExit(e:NativeProcessExitEvent):void 
