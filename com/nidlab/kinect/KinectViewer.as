@@ -61,8 +61,6 @@ package com.nidlab.kinect
 			skeletonDisplayerTemp.rightHand.pos = rHandPos;
 			skeletonDisplayerTemp.rightHand.depth = rHandDepth;
 			
-			//skeletonDisplayerTemp.debugMode = _debugMode;
-			
 			_skeletonDisplayerList.push(skeletonDisplayerTemp);
 			skeletonHolder.addChild(skeletonDisplayerTemp);
 			
@@ -108,10 +106,6 @@ package com.nidlab.kinect
 		public function set debugMode(value:Boolean):void 
 		{
 			_debugMode = value;
-			
-			/*for (var i:int = 0; i < _skeletonDisplayerList.length; i++ ) {
-				_skeletonDisplayerList[i].debugMode = _debugMode;
-			}*/
 			
 			skeletonHolder.visible = _debugMode;
 		}

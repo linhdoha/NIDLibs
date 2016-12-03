@@ -14,7 +14,6 @@ package com.nidlab.kinect
 		private var color:uint;
 		private var _leftHand:Hand;
 		private var _rightHand:Hand;
-		private var _debugMode:Boolean = false;
 		
 		public function SkeletonDisplayer()
 		{
@@ -50,29 +49,6 @@ package com.nidlab.kinect
 		{
 			return _rightHand;
 		}
-		
-		/*public function get debugMode():Boolean
-		{
-			return _debugMode;
-		}
-		
-		public function set debugMode(value:Boolean):void
-		{
-			_debugMode = value;
-			
-			if (_debugMode)
-			{
-				_leftHand.graphics.lineStyle(4, 0x00FFFF, 0.8);
-				_leftHand.graphics.drawCircle(0, 0, 80);
-				_rightHand.graphics.lineStyle(4, 0x00FFFF, 0.8);
-				_rightHand.graphics.drawCircle(0, 0, 80);
-			}
-			else
-			{
-				_leftHand.graphics.clear();
-				_rightHand.graphics.clear();
-			}
-		}*/
 	}
 
 }
