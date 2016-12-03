@@ -23,6 +23,7 @@ package com.nidlab.kinect
 		private var _bodyData:*;
 		private var _bodyDataOld:*;
 		private var gestureStateList:Dictionary = new Dictionary();
+		private var _kinectSocket:KinectSocket;
 		
 		public function BodyDataReader()
 		{
@@ -132,6 +133,22 @@ package com.nidlab.kinect
 		public function get bodyCount():int
 		{
 			return int(_bodyData.bodies.length);
+		}
+		
+		public function get kinectSocket():KinectSocket 
+		{
+			return _kinectSocket;
+		}
+		
+		public function set kinectSocket(value:KinectSocket):void 
+		{
+			_kinectSocket = value;
+			_kinectSocket.addEventListener(KinectSocket.BODY_DATA_EVENT, onBodyDataEvent);
+		}
+		
+		private function onBodyDataEvent(e:Event):void 
+		{
+			this.data = _kinectSocket.data;
 		}
 		
 		private function checkGesture():void {
