@@ -4,6 +4,8 @@ package com.nidlab.kinect
 	import flash.events.EventDispatcher;
 	import flash.geom.Point;
 	import flash.geom.Vector3D;
+	import flash.utils.Dictionary;
+	import mx.utils.ObjectUtil;
 	
 	/**
 	 * ...
@@ -15,13 +17,16 @@ package com.nidlab.kinect
 		public static const ON_BODY_ADDED:String = "onBodyAdded";
 		public static const ON_BODY_UPDATED:String = "onBodyUpdated";
 		public static const ON_BODY_REMOVED:String = "onBodyRemoved";
-		public static const ON_GESTURE_EVENT:String = "onGestureEvent";
+		public static const ON_GESTURE_BEGIN:String = "onGestureBegin";
+		public static const ON_GESTURE_CONTINUE:String = "onGestureContinue";
+		public static const ON_GESTURE_END:String = "onGestureEnd";
 		private var _bodyData:*;
 		private var _bodyDataOld:*;
+		private var gestureStateList:Dictionary = new Dictionary();
 		
 		public function BodyDataReader()
 		{
-		
+			
 		}
 		
 		public function set data(s:String):void
@@ -130,11 +135,48 @@ package com.nidlab.kinect
 		}
 		
 		private function checkGesture():void {
+			
 			if (_bodyData.bodies.length > 0) {
 				for each (var body:Object in _bodyData.bodies) {
 					for each (var gesture:Object in body.gesture) {
-						dispatchEvent(new GestureEvent(ON_GESTURE_EVENT, false, false, body.trackingID, gesture.name, gesture.progress));
+						var gestureObj:Object = {trackingID:body.trackingID, gestureName:gesture.name };
+						var found:Boolean = false;
+						for (var key:* in gestureStateList) {
+							if (ObjectUtil.compare(key,gestureObj)==0) {
+								found = true;
+								gestureStateList[key] = gesture.progress;
+								dispatchEvent(new GestureEvent(ON_GESTURE_CONTINUE,false,false,body.trackingID, gesture.name, gesture.progress));
+								break;
+							}
+						}
+						if (!found) {
+							gestureStateList[gestureObj] = gesture.progress;
+							dispatchEvent(new GestureEvent(ON_GESTURE_BEGIN, false, false, body.trackingID, gesture.name, gesture.progress));
+						}
 					}
+				}
+			}
+			
+			for (key in gestureStateList) {
+				if (_bodyData.bodies.length > 0) {
+					found = false;
+					for each (body in _bodyData.bodies) {
+						for each (gesture in body.gesture) {
+							gestureObj = {trackingID:body.trackingID, gestureName:gesture.name };
+							if (ObjectUtil.compare(key, gestureObj) == 0) {
+								found = true;
+								break;
+							}
+							
+						}
+					}
+					if (!found) {
+						dispatchEvent(new GestureEvent(ON_GESTURE_END, false, false, key.trackingID, key.gestureName, 0));
+						delete gestureStateList[key];
+					}
+				} else {
+					dispatchEvent(new GestureEvent(ON_GESTURE_END, false, false, key.trackingID, key.gestureName, 0));
+					delete gestureStateList[key];
 				}
 			}
 		}
