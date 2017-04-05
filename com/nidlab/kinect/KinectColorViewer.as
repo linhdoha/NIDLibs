@@ -15,7 +15,7 @@ package com.nidlab.kinect
 	 * ...
 	 * @author Linhdoha
 	 */
-	public class KinectViewer extends Sprite 
+	public class KinectColorViewer extends Sprite 
 	{
 		private var colorVideo:Video;
 		private var colorVideoHolder:Sprite;
@@ -24,7 +24,7 @@ package com.nidlab.kinect
 		protected var _bodyDataReader:BodyDataReader;
 		private var _debugMode:Boolean = false;
 		
-		public function KinectViewer() 
+		public function KinectColorViewer() 
 		{
 			super();
 			
