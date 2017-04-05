@@ -24,10 +24,14 @@ package com.nidlab.kinect
 		private var _bodyDataOld:*;
 		private var gestureStateList:Dictionary = new Dictionary();
 		private var _kinectSocket:KinectSocket;
+		private var _debug:Boolean = false;
 		
-		public function BodyDataReader()
+		public function BodyDataReader(kinectSocket:KinectSocket,debug:Boolean = false)
 		{
+			_kinectSocket = kinectSocket;
+			_kinectSocket.addEventListener(KinectSocket.BODY_DATA_EVENT, onBodyDataEvent);
 			
+			_debug = debug;
 		}
 		
 		public function set data(s:String):void
@@ -133,17 +137,6 @@ package com.nidlab.kinect
 		public function get bodyCount():int
 		{
 			return int(_bodyData.bodies.length);
-		}
-		
-		public function get kinectSocket():KinectSocket 
-		{
-			return _kinectSocket;
-		}
-		
-		public function set kinectSocket(value:KinectSocket):void 
-		{
-			_kinectSocket = value;
-			_kinectSocket.addEventListener(KinectSocket.BODY_DATA_EVENT, onBodyDataEvent);
 		}
 		
 		private function onBodyDataEvent(e:Event):void 
