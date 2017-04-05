@@ -1,4 +1,4 @@
-package com.nidlab.kinect.constant
+package com.nidlab.kinect
 {
 	/**
 	 * ...

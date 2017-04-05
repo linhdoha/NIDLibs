@@ -1,5 +1,6 @@
 package com.nidlab.kinect 
 {
+	import com.nidlab.kinect.KinectV2Description;
 	import flash.media.Camera;
 	/**
 	 * ...
