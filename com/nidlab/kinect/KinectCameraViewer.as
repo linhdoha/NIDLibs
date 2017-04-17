@@ -1,6 +1,5 @@
 package com.nidlab.kinect
 {
-	import com.nidlab.kinect.KinectV2Description;
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
 	import flash.media.Camera;
@@ -37,11 +36,11 @@ package com.nidlab.kinect
 			case KinectCameraMode.COLOR_MODE:
 				
 				graphics.beginFill(0x000000, 0.2);
-				graphics.drawRoundRect(0, 0, KinectV2Description.COLOR_CAMERA_WIDTH, KinectV2Description.COLOR_CAMERA_HEIGHT, 20, 20);
+				graphics.drawRoundRect(0, 0, Kinect.COLOR_CAMERA_WIDTH, Kinect.COLOR_CAMERA_HEIGHT, 20, 20);
 				graphics.endFill();
 				
 				var kinectCamera:Camera = KinectCameraManager.getInstance().getColorCamera();
-				kinectCamera.setMode(KinectV2Description.COLOR_CAMERA_WIDTH, KinectV2Description.COLOR_CAMERA_HEIGHT, KinectV2Description.COLOR_CAMERA_FPS);
+				kinectCamera.setMode(Kinect.COLOR_CAMERA_WIDTH, Kinect.COLOR_CAMERA_HEIGHT, Kinect.COLOR_CAMERA_FPS);
 				video = new Video(kinectCamera.width, kinectCamera.height);
 				video.attachCamera(kinectCamera);
 				this.mirrorMode = true;

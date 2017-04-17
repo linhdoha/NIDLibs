@@ -1,5 +1,7 @@
 package com.nidlab.kinect
 {
+	import com.nidlab.kinect.events.BodyDataEvent;
+	import com.nidlab.kinect.events.GestureEvent;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.geom.Point;
@@ -11,15 +13,28 @@ package com.nidlab.kinect
 	 * ...
 	 * @author Linhdoha
 	 */
+	
+	/// @eventType	com.nidlab.kinect.events.BodyDataEvent.ON_BODY_ADDED
+	[Event(name = "onBodyAdded", type = "com.nidlab.kinect.events.BodyDataEvent")] 
+	
+	/// @eventType	com.nidlab.kinect.events.BodyDataEvent.ON_BODY_UPDATED
+	[Event(name = "onBodyUpdated", type = "com.nidlab.kinect.events.BodyDataEvent")] 
+	
+	/// @eventType	com.nidlab.kinect.events.BodyDataEvent.ON_BODY_REMOVED
+	[Event(name = "onBodyRemoved", type = "com.nidlab.kinect.events.BodyDataEvent")] 
+	
+	/// @eventType	com.nidlab.kinect.events.BodyDataEvent.ON_GESTURE_BEGIN
+	[Event(name = "onGestureBegin", type = "com.nidlab.kinect.events.GestureEvent")] 
+	
+	/// @eventType	com.nidlab.kinect.events.BodyDataEvent.ON_GESTURE_CONTINUE
+	[Event(name = "onGestureContinue", type = "com.nidlab.kinect.events.GestureEvent")] 
+	
+	/// @eventType	com.nidlab.kinect.events.BodyDataEvent.ON_GESTURE_END
+	[Event(name = "onGestureEnd", type = "com.nidlab.kinect.events.GestureEvent")] 
+	 
+	 
 	public class BodyDataReader extends EventDispatcher
 	{
-		public static const DATA_CHANGED:String = "dataChanged";
-		public static const ON_BODY_ADDED:String = "onBodyAdded";
-		public static const ON_BODY_UPDATED:String = "onBodyUpdated";
-		public static const ON_BODY_REMOVED:String = "onBodyRemoved";
-		public static const ON_GESTURE_BEGIN:String = "onGestureBegin";
-		public static const ON_GESTURE_CONTINUE:String = "onGestureContinue";
-		public static const ON_GESTURE_END:String = "onGestureEnd";
 		private var _bodyData:*;
 		private var _bodyDataOld:*;
 		private var gestureStateList:Dictionary = new Dictionary();
@@ -45,7 +60,6 @@ package com.nidlab.kinect
 					_bodyData = dataObject;
 					
 					processData();
-					dispatchEvent(new Event(DATA_CHANGED));
 					_bodyDataOld = _bodyData;
 				}
 				else
@@ -66,72 +80,6 @@ package com.nidlab.kinect
 			checkNewBody();
 			checkUpdateBody();
 			checkRemoveBody();
-			
-			/*if (_bodyData.bodies.length > 0)
-			{
-				for each (var body:Object in _bodyData.bodies) {
-					for each (var gesture:Object in body.gesture) {
-						trace("GESTURE: " + gesture.name+" progress: " + gesture.progress);
-					}
-				}
-				
-				// nếu trước đó không có dữ liệu gì thì _bodyData toàn là người mới
-				if (_bodyDataOld == null || _bodyDataOld.bodies.length == 0)
-				{
-					for each (var body2:Object in _bodyData.bodies) {
-						dispatchEvent(new BodyEvent(ON_BODY_ADDED, false, false, body2.trackingID));
-					}
-				}
-				else
-				{
-					
-					//phát hiện người mới
-					for (var i:int = 0; i < bodyCount; i++)
-					{
-						var found:Boolean = false;
-						for (var j:int = 0; j < _bodyDataOld.bodies.length; j++)
-						{
-							if (_bodyData.bodies[i].trackingID == _bodyDataOld.bodies[j].trackingID)
-							{
-								found = true;
-							}
-						}
-						
-						if (!found)
-						{
-							dispatchEvent(new BodyEvent(ON_BODY_ADDED, false, false, _bodyData.bodies[i].trackingID));
-						}
-					}
-					
-					//phát hiện người được cập nhật
-					for (var m:int = 0; m < _bodyDataOld.bodies.length; m++)
-					{
-						var found2:Boolean = false;
-						for (var n:int = 0; n < bodyCount; n++)
-						{
-							if (_bodyDataOld.bodies[m].trackingID == _bodyData.bodies[n].trackingID)
-							{
-								found2 = true;
-							}
-						}
-						
-						if (!found2)
-						{
-							dispatchEvent(new BodyEvent(ON_BODY_REMOVED, false, false, _bodyDataOld.bodies[m].trackingID));
-						}
-						else
-						{
-							dispatchEvent(new BodyEvent(ON_BODY_UPDATED, false, false, _bodyDataOld.bodies[m].trackingID));
-						}
-					}
-					
-				}
-			} else if (_bodyData.bodies.length == 0 && _bodyDataOld != null && _bodyDataOld.bodies.length !=0) {
-				for (var p:int = 0; p < _bodyDataOld.bodies.length; p++ ) {
-					dispatchEvent(new BodyEvent(ON_BODY_REMOVED, false, false, _bodyDataOld.bodies[p].trackingID));
-				}
-			}*/
-		
 		}
 		
 		public function get bodyCount():int
@@ -155,13 +103,13 @@ package com.nidlab.kinect
 							if (ObjectUtil.compare(key,gestureObj)==0) {
 								found = true;
 								gestureStateList[key] = gesture.progress;
-								dispatchEvent(new GestureEvent(ON_GESTURE_CONTINUE,false,false,body.trackingID, gesture.name, gesture.progress));
+								dispatchEvent(new GestureEvent(GestureEvent.ON_GESTURE_CONTINUE,false,false,body.trackingID, gesture.name, gesture.progress));
 								break;
 							}
 						}
 						if (!found) {
 							gestureStateList[gestureObj] = gesture.progress;
-							dispatchEvent(new GestureEvent(ON_GESTURE_BEGIN, false, false, body.trackingID, gesture.name, gesture.progress));
+							dispatchEvent(new GestureEvent(GestureEvent.ON_GESTURE_BEGIN, false, false, body.trackingID, gesture.name, gesture.progress));
 						}
 					}
 				}
@@ -181,11 +129,11 @@ package com.nidlab.kinect
 						}
 					}
 					if (!found) {
-						dispatchEvent(new GestureEvent(ON_GESTURE_END, false, false, key.trackingID, key.gestureName, 0));
+						dispatchEvent(new GestureEvent(GestureEvent.ON_GESTURE_END, false, false, key.trackingID, key.gestureName, 0));
 						delete gestureStateList[key];
 					}
 				} else {
-					dispatchEvent(new GestureEvent(ON_GESTURE_END, false, false, key.trackingID, key.gestureName, 0));
+					dispatchEvent(new GestureEvent(GestureEvent.ON_GESTURE_END, false, false, key.trackingID, key.gestureName, 0));
 					delete gestureStateList[key];
 				}
 			}
@@ -195,7 +143,7 @@ package com.nidlab.kinect
 			if (_bodyData.bodies.length > 0) {
 				if (_bodyDataOld == null || _bodyDataOld.bodies.length == 0) {
 					for each (var bodyInNew:Object in _bodyData.bodies) {
-						dispatchEvent(new BodyEvent(ON_BODY_ADDED, false, false, bodyInNew.trackingID));
+						dispatchEvent(new BodyDataEvent(BodyDataEvent.ON_BODY_ADDED, false, false, bodyInNew.trackingID));
 					}
 				} else {
 					for each (var bodyInNew2:Object in _bodyData.bodies) {
@@ -204,7 +152,7 @@ package com.nidlab.kinect
 							if (bodyInNew2.trackingID == bodyInOld2.trackingID) found = true;
 						}
 						
-						if (!found) dispatchEvent(new BodyEvent(ON_BODY_ADDED, false, false, bodyInNew2.trackingID));
+						if (!found) dispatchEvent(new BodyDataEvent(BodyDataEvent.ON_BODY_ADDED, false, false, bodyInNew2.trackingID));
 					}
 				}
 			}
@@ -215,7 +163,7 @@ package com.nidlab.kinect
 				for each (var bodyInNew:Object in _bodyData.bodies) {
 					for each (var bodyInOld:Object in _bodyDataOld.bodies) {
 						if (bodyInNew.trackingID == bodyInOld.trackingID) {
-							dispatchEvent(new BodyEvent(ON_BODY_UPDATED, false, false, bodyInOld.trackingID));
+							dispatchEvent(new BodyDataEvent(BodyDataEvent.ON_BODY_UPDATED, false, false, bodyInOld.trackingID));
 							break;
 						}
 					}
@@ -226,7 +174,7 @@ package com.nidlab.kinect
 		private function checkRemoveBody():void {
 			if (_bodyData.bodies.length == 0 && _bodyDataOld != null && _bodyDataOld.bodies.length >0) {
 				for each (var bodyInOld:Object in _bodyDataOld.bodies) {
-					dispatchEvent(new BodyEvent(ON_BODY_REMOVED, false, false, bodyInOld.trackingID));
+					dispatchEvent(new BodyDataEvent(BodyDataEvent.ON_BODY_REMOVED, false, false, bodyInOld.trackingID));
 				}
 			} else if (_bodyData.bodies.length > 0 && _bodyDataOld != null && _bodyDataOld.bodies.length > 0) {
 				for each (var bodyInOld2:Object in _bodyDataOld.bodies) {
@@ -235,7 +183,7 @@ package com.nidlab.kinect
 						if (bodyInOld2.trackingID == bodyInNew.trackingID) found = true;
 					}
 					
-					if (!found) dispatchEvent(new BodyEvent(ON_BODY_REMOVED, false, false, bodyInOld2.trackingID));
+					if (!found) dispatchEvent(new BodyDataEvent(BodyDataEvent.ON_BODY_REMOVED, false, false, bodyInOld2.trackingID));
 				}
 			}
 		}

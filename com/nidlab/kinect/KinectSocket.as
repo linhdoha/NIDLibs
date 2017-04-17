@@ -72,18 +72,18 @@ package com.nidlab.kinect
 			var headerSign:String = dataTemp.readUTFBytes(4);
 			switch (headerSign)
 			{
-				case BODY_DATA_SIGN: 
-					isReading = true;
-					_currentReadingData = headerSign;
-					_byteData = new ByteArray();
-					break;
-				default: 
-					if (!isReading)
-					{
-						trace("Malfuntion data!");
-						return;
-					}
-					break;
+			case BODY_DATA_SIGN: 
+				isReading = true;
+				_currentReadingData = headerSign;
+				_byteData = new ByteArray();
+				break;
+			default: 
+				if (!isReading)
+				{
+					trace("Malfuntion data!");
+					return;
+				}
+				break;
 			}
 			
 			_byteData.writeBytes(dataTemp, 0, dataTemp.length);

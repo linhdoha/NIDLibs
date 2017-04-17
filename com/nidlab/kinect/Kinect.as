@@ -10,11 +10,19 @@ package com.nidlab.kinect
 	 */
 	public class Kinect extends EventDispatcher
 	{
+		public static const COLOR_CAMERA_ID:String = "Kinect Camera V2";
+		public static const COLOR_CAMERA_WIDTH:int = 1920;
+		public static const COLOR_CAMERA_HEIGHT:int = 1080;
+		public static const COLOR_CAMERA_FPS:int = 30;
+		public static const BODY_INDEX_CAMERA_ID:String = "Kinect Camera V2 Body Index";
+		public static const BODY_INDEX_CAMERA_WIDTH:int = 512;
+		public static const BODY_INDEX_CAMERA_HEIGHT:int = 424;
+		public static const BODY_INDEX_CAMERA_FPS:int = 30;
+		
 		private var kinectConsole:KinectConsole;
 		private var kinectSocket:KinectSocket;
 		private var _bodyDataReader:BodyDataReader;
 		private var _debug:Boolean = false;
-		public static const ON_KINECT_STOP:String = "onKinectStop";
 		private var _stage:Stage;
 		private var _appWaittingToStop:Boolean = false;
 		
@@ -71,7 +79,6 @@ package com.nidlab.kinect
 			if (!kinectConsole.running && !kinectSocket.connected)
 			{
 				if (_debug) trace("Kinect has stopped.");
-				dispatchEvent(new Event(ON_KINECT_STOP));
 				if (_appWaittingToStop) {
 					NativeApplication.nativeApplication.exit();
 				}

@@ -1,4 +1,4 @@
-package com.nidlab.kinect 
+package com.nidlab.kinect
 {
 	import flash.desktop.NativeProcess;
 	import flash.desktop.NativeProcessStartupInfo;
@@ -8,25 +8,33 @@ package com.nidlab.kinect
 	import flash.events.NativeProcessExitEvent;
 	import flash.events.ProgressEvent;
 	import flash.filesystem.File;
+	
 	/**
 	 * ...
 	 * @author Linhdoha
 	 */
+	
+	/// @eventType	com.nidlab.kinect.KinectConsole.PROCESS_EXIT
+	[Event(name = "processExit", type = "com.nidlab.kinect.KinectConsole")]
+	
 	public class KinectConsole extends EventDispatcher
 	{
 		private var process:NativeProcess;
 		public static const PROCESS_EXIT:String = "processExit";
-		public function KinectConsole(port:int=7001, debug:Boolean=false) 
+		
+		public function KinectConsole(port:int = 7001, debug:Boolean = false)
 		{
 			//Kinect Server Console
-			if (NativeProcess.isSupported) {
+			if (NativeProcess.isSupported)
+			{
 				var nativeProcessStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
 				var file:File = File.applicationDirectory.resolvePath("KinectServerConsole.exe");
 				nativeProcessStartupInfo.executable = file;
 				
 				var processArgs:Vector.<String> = new Vector.<String>;
 				processArgs[0] = port;
-				if (debug) {
+				if (debug)
+				{
 					processArgs[1] = "-debug";
 				}
 				nativeProcessStartupInfo.arguments = processArgs;
@@ -38,50 +46,60 @@ package com.nidlab.kinect
 				process.addEventListener(ProgressEvent.STANDARD_ERROR_DATA, onStdErrorData);
 				process.addEventListener(IOErrorEvent.STANDARD_OUTPUT_IO_ERROR, onIOError);
 				process.addEventListener(IOErrorEvent.STANDARD_ERROR_IO_ERROR, onIOError);
-			} else {
+			}
+			else
+			{
 				trace("NativeProcess is not supported.");
 			}
-			
+		
 		}
 		
 		private function onIOError(event:IOErrorEvent):void
-        {
-            trace(event.toString());
-        }
-		
-		private function onStdErrorData(e:ProgressEvent):void 
 		{
-			trace("KinectConsole: ERROR -" + process.standardError.readUTFBytes(process.standardError.bytesAvailable)); 
+			trace(event.toString());
 		}
 		
-		private function onStdOut(e:ProgressEvent):void 
+		private function onStdErrorData(e:ProgressEvent):void
+		{
+			trace("KinectConsole: ERROR -" + process.standardError.readUTFBytes(process.standardError.bytesAvailable));
+		}
+		
+		private function onStdOut(e:ProgressEvent):void
 		{
 			//trace("KinectConsole: " + process.standardOutput.readUTFBytes(process.standardOutput.bytesAvailable));
 			var tempStr:String = process.standardOutput.readUTFBytes(process.standardOutput.bytesAvailable);
 		}
 		
-		public function get running():Boolean {
-			if (NativeProcess.isSupported) {
+		public function get running():Boolean
+		{
+			if (NativeProcess.isSupported)
+			{
 				return process.running;
-			} else {
+			}
+			else
+			{
 				trace("NativeProcess is not supported.");
 				return false;
 			}
 		}
 		
-		public function exit():void {
-			if (NativeProcess.isSupported) {
+		public function exit():void
+		{
+			if (NativeProcess.isSupported)
+			{
 				process.exit(true);
-			} else {
+			}
+			else
+			{
 				trace("NativeProcess is not supported.");
 			}
 		}
 		
-		private function onProcessExit(e:NativeProcessExitEvent):void 
+		private function onProcessExit(e:NativeProcessExitEvent):void
 		{
 			dispatchEvent(new Event(PROCESS_EXIT));
 		}
-		
+	
 	}
 
 }

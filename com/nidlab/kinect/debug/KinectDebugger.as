@@ -1,20 +1,20 @@
 package com.nidlab.kinect.debug
 {
-	import com.nidlab.kinect.BodyEvent;
+	import com.nidlab.kinect.JointType;
+	import com.nidlab.kinect.events.BodyDataEvent;
 	import com.nidlab.kinect.Kinect;
 	import com.nidlab.kinect.KinectCameraMode;
 	import com.nidlab.kinect.KinectCameraViewer;
-	import com.nidlab.kinect.JointNames;
-	import com.nidlab.kinect.KinectV2Description;
 	import flash.display.Sprite;
 	import flash.events.DataEvent;
 	import flash.events.Event;
 	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	import flash.geom.Vector3D;
 	import flash.media.Camera;
 	import flash.media.Video;
 	import com.nidlab.kinect.BodyDataReader;
-	import com.nidlab.kinect.SkeletonDisplayer;
+	import com.nidlab.kinect.debug.Skeleton;
 	
 	/**
 	 * ...
@@ -25,7 +25,7 @@ package com.nidlab.kinect.debug
 		private var colorVideo:Video;
 		private var colorVideoHolder:Sprite;
 		private var skeletonHolder:Sprite;
-		private var _skeletonDisplayerList:Vector.<SkeletonDisplayer>;
+		private var _skeletonList:Vector.<Skeleton>;
 		protected var _bodyDataReader:BodyDataReader;
 		
 		public function KinectDebugger(kinect:Kinect)
@@ -35,105 +35,244 @@ package com.nidlab.kinect.debug
 			var kinectCameraViewer:KinectCameraViewer = new KinectCameraViewer();
 			addChild(kinectCameraViewer);
 			
-			_skeletonDisplayerList = new Vector.<SkeletonDisplayer>();
+			_skeletonList = new Vector.<Skeleton>();
 			skeletonHolder = new Sprite();
 			addChild(skeletonHolder);
 			
 			bodyDataReader = kinect.bodyDataReader;
-		
 		}
 		
-		public function get skeletonDisplayerList():Vector.<SkeletonDisplayer>
+		public function get skeletonList():Vector.<Skeleton>
 		{
-			return _skeletonDisplayerList;
+			return _skeletonList;
 		}
 		
-		public function set skeletonDisplayerList(value:Vector.<SkeletonDisplayer>):void
+		private function set skeletonList(value:Vector.<Skeleton>):void
 		{
-			_skeletonDisplayerList = value;
+			_skeletonList = value;
 		}
 		
-		public function get bodyDataReader():BodyDataReader
+		protected function get bodyDataReader():BodyDataReader
 		{
 			return _bodyDataReader;
 		}
 		
-		public function set bodyDataReader(value:BodyDataReader):void
+		protected function set bodyDataReader(value:BodyDataReader):void
 		{
 			_bodyDataReader = value;
-			_bodyDataReader.addEventListener(BodyDataReader.ON_BODY_ADDED, onBodyAdded);
-			_bodyDataReader.addEventListener(BodyDataReader.ON_BODY_UPDATED, onBodyUpdated);
-			_bodyDataReader.addEventListener(BodyDataReader.ON_BODY_REMOVED, onBodyRemoved);
+			_bodyDataReader.addEventListener(BodyDataEvent.ON_BODY_ADDED, onBodyAdded);
+			_bodyDataReader.addEventListener(BodyDataEvent.ON_BODY_UPDATED, onBodyUpdated);
+			_bodyDataReader.addEventListener(BodyDataEvent.ON_BODY_REMOVED, onBodyRemoved);
 		}
 		
-		private function onBodyRemoved(e:BodyEvent):void
+		protected function onBodyRemoved(e:BodyDataEvent):void
 		{
-			var trackingID:Number = e.trackingID;
-			var currentSkeletonDisplayer:SkeletonDisplayer = null;
-			for (var i:int = 0; i < _skeletonDisplayerList.length; i++)
+			for each(var skeleton:Skeleton in _skeletonList)
 			{
-				if ((_skeletonDisplayerList[i] != null) && (trackingID == _skeletonDisplayerList[i].trackingID))
-				{
-					currentSkeletonDisplayer = _skeletonDisplayerList[i];
-					skeletonHolder.removeChild(currentSkeletonDisplayer);
-					_skeletonDisplayerList[i] = null;
+				if ((skeleton != null) && (e.trackingID == skeleton.trackingID)) {
+					if (skeleton.parent == skeletonHolder) skeletonHolder.removeChild(skeleton);
+					skeleton = null;
 				}
 			}
 		}
 		
-		private function onBodyUpdated(e:BodyEvent):void
+		protected function onBodyUpdated(e:BodyDataEvent):void
 		{
-			var trackingID:Number = e.trackingID;
-			for (var j:int = 0; j < _skeletonDisplayerList.length; j++)
+			for each(var skeleton:Skeleton in _skeletonList)
 			{
-				if ((_skeletonDisplayerList[j] != null) && (trackingID == _skeletonDisplayerList[j].trackingID))
-				{
-					pushFromTrackingIDToSkeletonDisplayer(trackingID, _skeletonDisplayerList[j]);
-					
+				if ((skeleton != null) && (e.trackingID == skeleton.trackingID)) {
+					plushMappedPosToSkeleton(e.trackingID, skeleton);
 					break;
 				}
 			}
 		}
 		
-		private function onBodyAdded(e:BodyEvent):void
+		protected function onBodyAdded(e:BodyDataEvent):void
 		{
-			var skeletonDisplayerTemp:SkeletonDisplayer = new SkeletonDisplayer();
-			skeletonDisplayerTemp.trackingID = e.trackingID;
-			pushFromTrackingIDToSkeletonDisplayer(e.trackingID, skeletonDisplayerTemp);
+			var skeletonTemp:Skeleton = new Skeleton();
+			skeletonTemp.trackingID = e.trackingID;
+			plushMappedPosToSkeleton(e.trackingID, skeletonTemp);
 			
-			_skeletonDisplayerList.push(skeletonDisplayerTemp);
-			skeletonHolder.addChild(skeletonDisplayerTemp);
+			_skeletonList.push(skeletonTemp);
+			skeletonHolder.addChild(skeletonTemp);
+			
+			updateSkeletonJointVisibility(skeletonTemp);
 		}
 		
-		private function pushFromTrackingIDToSkeletonDisplayer(trackingID:Number, skeletonDisplayer:SkeletonDisplayer):void {
-			skeletonDisplayer.leftHand.state = _bodyDataReader.getLeftHandState(trackingID);
-			skeletonDisplayer.rightHand.state = _bodyDataReader.getRightHandState(trackingID);
+		private function plushMappedPosToSkeleton(trackingID:Number, skeleton:Skeleton):void
+		{
+			skeleton.handLeft.state = _bodyDataReader.getLeftHandState(trackingID);
+			skeleton.handRight.state = _bodyDataReader.getRightHandState(trackingID);
 			
-			skeletonDisplayer.leftHand.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.HAND_LEFT);
-			skeletonDisplayer.rightHand.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.HAND_RIGHT);
-			skeletonDisplayer.head.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.HEAD);
-			skeletonDisplayer.neck.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.NECK);
-			skeletonDisplayer.spineShoulder.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.SPINE_SHOULDER);
-			skeletonDisplayer.shoulderLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.SHOULDER_LEFT);
-			skeletonDisplayer.shoulderRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.SHOULDER_RIGHT);
-			skeletonDisplayer.elbowLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.ELBOW_LEFT);
-			skeletonDisplayer.elbowRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.ELBOW_RIGHT);
-			skeletonDisplayer.wristLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.WRIST_LEFT);
-			skeletonDisplayer.wristRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.WRIST_RIGHT);
-			skeletonDisplayer.thumbLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.THUMB_LEFT);
-			skeletonDisplayer.thumbRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.THUMB_RIGHT);
-			skeletonDisplayer.handTipLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.HAND_TIP_LEFT);
-			skeletonDisplayer.handTipRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.HAND_TIP_RIGHT);
-			skeletonDisplayer.spineMid.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.SPINE_MID);
-			skeletonDisplayer.spineBase.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.SPINE_BASE);
-			skeletonDisplayer.hipLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.HIP_LEFT);
-			skeletonDisplayer.hipRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.HIP_RIGHT);
-			skeletonDisplayer.kneeLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.KNEE_LEFT);
-			skeletonDisplayer.kneeRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.KNEE_RIGHT);
-			skeletonDisplayer.ankleLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.ANKLE_LEFT);
-			skeletonDisplayer.ankleRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.ANKLE_RIGHT);
-			skeletonDisplayer.footLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.FOOT_LEFT);
-			skeletonDisplayer.footRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointNames.FOOT_RIGHT);
+			skeleton.handLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.HAND_LEFT);
+			skeleton.handRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.HAND_RIGHT);
+			skeleton.head.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.HEAD);
+			skeleton.neck.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.NECK);
+			skeleton.spineShoulder.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.SPINE_SHOULDER);
+			skeleton.shoulderLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.SHOULDER_LEFT);
+			skeleton.shoulderRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.SHOULDER_RIGHT);
+			skeleton.elbowLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.ELBOW_LEFT);
+			skeleton.elbowRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.ELBOW_RIGHT);
+			skeleton.wristLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.WRIST_LEFT);
+			skeleton.wristRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.WRIST_RIGHT);
+			skeleton.thumbLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.THUMB_LEFT);
+			skeleton.thumbRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.THUMB_RIGHT);
+			skeleton.handTipLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.HAND_TIP_LEFT);
+			skeleton.handTipRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.HAND_TIP_RIGHT);
+			skeleton.spineMid.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.SPINE_MID);
+			skeleton.spineBase.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.SPINE_BASE);
+			skeleton.hipLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.HIP_LEFT);
+			skeleton.hipRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.HIP_RIGHT);
+			skeleton.kneeLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.KNEE_LEFT);
+			skeleton.kneeRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.KNEE_RIGHT);
+			skeleton.ankleLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.ANKLE_LEFT);
+			skeleton.ankleRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.ANKLE_RIGHT);
+			skeleton.footLeft.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.FOOT_LEFT);
+			skeleton.footRight.pos = _bodyDataReader.getJointMappedPos(trackingID, JointType.FOOT_RIGHT);
+		}
+		
+		public var spineBaseVisible		:Boolean = true;
+		public var spineMidVisible		:Boolean = true;
+		public var neckVisible			:Boolean = true;
+		public var headVisible			:Boolean = true;
+		public var shoulderLeftVisible	:Boolean = true;
+		public var elbowLeftVisible		:Boolean = true;
+		public var wristLeftVisible		:Boolean = true;
+		public var handLeftVisible		:Boolean = true;
+		public var shoulderRightVisible	:Boolean = true;
+		public var elbowRightVisible	:Boolean = true;
+		public var wristRightVisible	:Boolean = true;
+		public var handRightVisible		:Boolean = true;
+		public var hipLeftVisible		:Boolean = true;
+		public var kneeLeftVisible		:Boolean = true;
+		public var ankleLeftVisible		:Boolean = true;
+		public var footLeftVisible		:Boolean = true;
+		public var hipRightVisible		:Boolean = true;
+		public var kneeRightVisible		:Boolean = true;
+		public var ankleRightVisible	:Boolean = true;
+		public var footRightVisible		:Boolean = true;
+		public var spineShoulderVisible	:Boolean = true;
+		public var handTipLeftVisible	:Boolean = true;
+		public var thumbLeftVisible		:Boolean = true;
+		public var handTipRightVisible	:Boolean = true;
+		public var thumbRightVisible	:Boolean = true;
+		
+		public function hideAllJoints():void 
+		{
+			spineBaseVisible		= false;
+			spineMidVisible			= false;
+			neckVisible				= false;
+			headVisible				= false;
+			shoulderLeftVisible		= false;
+			elbowLeftVisible		= false;
+			wristLeftVisible		= false;
+			handLeftVisible			= false;
+			shoulderRightVisible	= false;
+			elbowRightVisible		= false;
+			wristRightVisible		= false;
+			handRightVisible		= false;
+			hipLeftVisible			= false;
+			kneeLeftVisible			= false;
+			ankleLeftVisible		= false;
+			footLeftVisible			= false;
+			hipRightVisible			= false;
+			kneeRightVisible		= false;
+			ankleRightVisible		= false;
+			footRightVisible		= false;
+			spineShoulderVisible	= false;
+			handTipLeftVisible		= false;
+			thumbLeftVisible		= false;
+			handTipRightVisible		= false;
+			thumbRightVisible		= false;
+		}
+		
+		public function showHandsOnly():void 
+		{
+			hideAllJoints();
+			handLeftVisible = true;
+			handRightVisible = true;
+		}
+		
+		public function showUpperBodyOnly():void 
+		{
+			hideAllJoints();
+			spineBaseVisible		= true;
+			spineMidVisible			= true;
+			neckVisible				= true;
+			headVisible				= true;
+			shoulderLeftVisible		= true;
+			elbowLeftVisible		= true;
+			wristLeftVisible		= true;
+			handLeftVisible			= true;
+			shoulderRightVisible	= true;
+			elbowRightVisible		= true;
+			wristRightVisible		= true;
+			handRightVisible		= true;
+			hipLeftVisible			= true;
+			hipRightVisible			= true;
+			spineShoulderVisible	= true;
+			handTipLeftVisible		= true;
+			thumbLeftVisible		= true;
+			handTipRightVisible		= true;
+			thumbRightVisible		= true;
+		}
+		
+		public function updateSkeletonJointsVisibility():void 
+		{
+			for each (var skeletonEnum:Skeleton in _skeletonList) {
+				updateSkeletonJointVisibility(skeletonEnum);
+			}
+		}
+		
+		public function updateSkeletonJointVisibility(skeleton:Skeleton):void 
+		{
+			
+			skeleton.spineBase.visible = spineBaseVisible;
+			skeleton.spineMid.visible = spineMidVisible;
+			
+			skeleton.head.visible = headVisible;
+			skeleton.neck.visible = neckVisible;
+			
+			skeleton.shoulderLeft.visible = shoulderLeftVisible;
+			skeleton.elbowLeft.visible = elbowLeftVisible;
+			skeleton.wristLeft.visible = wristLeftVisible;
+			skeleton.handLeft.visible = handLeftVisible;
+			
+			skeleton.shoulderRight.visible = shoulderRightVisible;
+			skeleton.elbowRight.visible = elbowRightVisible;
+			skeleton.wristRight.visible = wristRightVisible;
+			skeleton.handRight.visible = handRightVisible;
+			
+			skeleton.hipLeft.visible = hipLeftVisible;
+			skeleton.kneeLeft.visible = kneeLeftVisible;
+			skeleton.ankleLeft.visible = ankleLeftVisible;
+			skeleton.footLeft.visible = footLeftVisible;
+			
+			skeleton.hipRight.visible = hipRightVisible;
+			skeleton.kneeRight.visible = kneeRightVisible;
+			skeleton.ankleRight.visible = ankleRightVisible;
+			skeleton.footRight.visible = footRightVisible;
+			
+			skeleton.spineShoulder.visible = spineShoulderVisible;
+			
+			skeleton.handTipLeft.visible = handTipLeftVisible;
+			skeleton.thumbLeft.visible = thumbLeftVisible;
+			
+			skeleton.handTipRight.visible = handTipRightVisible;
+			skeleton.thumbRight.visible = thumbRightVisible;
+		}
+		
+		public function getJointOnScreenPos(trackingID:Number, jointType:String):Point {
+			for each (var skeletonEnum:Skeleton in _skeletonList) {
+				if (skeletonEnum.trackingID == trackingID) {
+					var joint:Joint = skeletonEnum.getJointDisplayObject(jointType);
+					if (joint != null) {
+						var jointPos:Point = skeletonEnum.localToGlobal(new Point(joint.x, joint.y));
+						return jointPos;
+					}
+				}
+			}
+			return null;
 		}
 	}
 

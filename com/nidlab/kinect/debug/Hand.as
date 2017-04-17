@@ -1,6 +1,6 @@
 package com.nidlab.kinect.debug
 {
-	import com.nidlab.kinect.HandStates;
+	import com.nidlab.kinect.HandState;
 	import flash.display.Sprite;
 	import flash.geom.Point;
 	
@@ -30,32 +30,33 @@ package com.nidlab.kinect.debug
 			var colorTemp:uint;
 			var size:int = 40;
 			var alpha:int = 1;
-			switch (this.state) {
-				case HandStates.OPEN:
-					colorTemp = 0x00FF00;
-					alpha = 1;
-					size = 80;
-					break;
-				case HandStates.CLOSED:
-					colorTemp = 0xFF0000;
-					alpha = 1;
-					size = 40;
-					break;
-				case HandStates.LASSO:
-					colorTemp = 0xFFFF00;
-					alpha = 1;
-					size = 80;
-					break;
-				case HandStates.UNKNOWN:
-					colorTemp = 0x999999;
-					alpha = 1;
-					size = 40;
-					break;
-				case HandStates.NOT_TRACKED:
-					colorTemp = 0x999999;
-					alpha = 0;
-					size = 40;
-					break;
+			switch (this.state)
+			{
+			case HandState.OPEN: 
+				colorTemp = 0x00FF00;
+				alpha = 1;
+				size = 80;
+				break;
+			case HandState.CLOSED: 
+				colorTemp = 0xFF0000;
+				alpha = 1;
+				size = 40;
+				break;
+			case HandState.LASSO: 
+				colorTemp = 0xFFFF00;
+				alpha = 1;
+				size = 80;
+				break;
+			case HandState.UNKNOWN: 
+				colorTemp = 0x999999;
+				alpha = 1;
+				size = 40;
+				break;
+			case HandState.NOT_TRACKED: 
+				colorTemp = 0x999999;
+				alpha = 0;
+				size = 40;
+				break;
 			}
 			
 			this.graphics.clear();

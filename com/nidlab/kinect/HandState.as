@@ -1,10 +1,10 @@
-package com.nidlab.kinect
+package com.nidlab.kinect 
 {
 	/**
 	 * ...
 	 * @author Linhdoha
 	 */
-	public class HandStates 
+	public class HandState 
 	{
 		public static const CLOSED:int = 3;
 		public static const LASSO:int = 4;
@@ -12,8 +12,7 @@ package com.nidlab.kinect
 		public static const OPEN:int = 2;
 		public static const UNKNOWN:int = 0;
 		
-		
-		public function HandStates() 
+		public function HandState() 
 		{
 			
 		}

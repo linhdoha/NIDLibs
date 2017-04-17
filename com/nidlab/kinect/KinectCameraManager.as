@@ -1,6 +1,5 @@
 package com.nidlab.kinect 
 {
-	import com.nidlab.kinect.KinectV2Description;
 	import flash.media.Camera;
 	/**
 	 * ...
@@ -34,11 +33,11 @@ package com.nidlab.kinect
 		}
 		
 		public function getColorCamera():Camera {
-			return Camera.getCamera(String(getCameraIndex(KinectV2Description.COLOR_CAMERA_ID)));
+			return Camera.getCamera(String(getCameraIndex(Kinect.COLOR_CAMERA_ID)));
 		}
 		
 		public function getBodyIndexCamera():Camera {
-			return Camera.getCamera(String(getCameraIndex(KinectV2Description.BODY_INDEX_CAMERA_ID)));
+			return Camera.getCamera(String(getCameraIndex(Kinect.BODY_INDEX_CAMERA_ID)));
 		}
 	}
 

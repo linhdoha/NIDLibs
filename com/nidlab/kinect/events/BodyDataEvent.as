@@ -1,4 +1,4 @@
-package com.nidlab.kinect 
+package com.nidlab.kinect.events 
 {
 	import flash.events.Event;
 	
@@ -6,11 +6,17 @@ package com.nidlab.kinect
 	 * ...
 	 * @author Linhdoha
 	 */
-	public class BodyEvent extends Event 
+	 
+	 public class BodyDataEvent extends Event 
 	{
+		public static const ON_BODY_ADDED:String = "onBodyAdded";
+		public static const ON_BODY_UPDATED:String = "onBodyUpdated";
+		public static const ON_BODY_REMOVED:String = "onBodyRemoved";
+		
+		
 		private var _trackingID:Number;
 		
-		public function BodyEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false,trackingID:Number=-1) 
+		public function BodyDataEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false,trackingID:Number=-1) 
 		{ 
 			super(type, bubbles, cancelable);
 			_trackingID = trackingID;
@@ -18,7 +24,7 @@ package com.nidlab.kinect
 		
 		public override function clone():Event 
 		{ 
-			return new BodyEvent(type, bubbles, cancelable);
+			return new BodyDataEvent(type, bubbles, cancelable);
 		} 
 		
 		public override function toString():String 

@@ -1,10 +1,10 @@
-package com.nidlab.kinect
+package com.nidlab.kinect 
 {
 	/**
 	 * ...
 	 * @author Linhdoha
 	 */
-	public class JointNames 
+	public class JointType 
 	{
 		public static const SPINE_BASE:String = "spinebase";
 		public static const SPINE_MID:String = "spinemid";
@@ -40,7 +40,8 @@ package com.nidlab.kinect
 		public static const HAND_TIP_RIGHT:String = "handtipright";
 		public static const THUMB_RIGHT:String = "thumbright";
 		
-		public function JointNames() 
+		
+		public function JointType() 
 		{
 			
 		}

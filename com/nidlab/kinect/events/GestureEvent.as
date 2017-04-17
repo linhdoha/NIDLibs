@@ -1,4 +1,4 @@
-package com.nidlab.kinect 
+package com.nidlab.kinect.events 
 {
 	import flash.events.Event;
 	
@@ -8,6 +8,10 @@ package com.nidlab.kinect
 	 */
 	public class GestureEvent extends Event 
 	{
+		public static const ON_GESTURE_BEGIN:String = "onGestureBegin";
+		public static const ON_GESTURE_CONTINUE:String = "onGestureContinue";
+		public static const ON_GESTURE_END:String = "onGestureEnd";
+		
 		private var _trackingID:Number;
 		private var _gestureName:String;
 		private var _progress:Number;
