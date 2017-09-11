@@ -40,6 +40,7 @@ package com.nidlab.kinect.debug
 			addChild(skeletonHolder);
 			
 			bodyDataReader = kinect.bodyDataReader;
+			this.scrollRect = new Rectangle(0, 0, kinectCameraViewer.width, kinectCameraViewer.height);
 		}
 		
 		public function get skeletonList():Vector.<Skeleton>

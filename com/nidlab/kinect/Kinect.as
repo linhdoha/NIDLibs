@@ -10,14 +10,20 @@ package com.nidlab.kinect
 	 */
 	public class Kinect extends EventDispatcher
 	{
-		public static const COLOR_CAMERA_ID:String = "Kinect Camera V2";
+		public static const COLOR_CAMERA_ID:String = "KinectV2 Color";
 		public static const COLOR_CAMERA_WIDTH:int = 1920;
 		public static const COLOR_CAMERA_HEIGHT:int = 1080;
 		public static const COLOR_CAMERA_FPS:int = 30;
+		
 		public static const BODY_INDEX_CAMERA_ID:String = "Kinect Camera V2 Body Index";
 		public static const BODY_INDEX_CAMERA_WIDTH:int = 512;
 		public static const BODY_INDEX_CAMERA_HEIGHT:int = 424;
 		public static const BODY_INDEX_CAMERA_FPS:int = 30;
+		
+		public static const GS_CAMERA_ID:String = "KinectV2 GreenScreen";
+		public static const GS_CAMERA_WIDTH:int = 1920;
+		public static const GS_CAMERA_HEIGHT:int = 1080;
+		public static const GS_CAMERA_FPS:int = 30;
 		
 		private var kinectConsole:KinectConsole;
 		private var kinectSocket:KinectSocket;

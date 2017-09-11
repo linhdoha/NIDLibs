@@ -11,6 +11,7 @@ package com.nidlab.kinect
 		public static const IR_MODE:String = "IRMode";
 		public static const DEPTH_MODE:String = "depthMode";
 		public static const BODY_INDEX_MODE:String = "bodyIndexMode";
+		public static const GREEN_SCREEN_MODE:String = "greenScreenMode";
 		
 		public function KinectCameraMode()
 		{

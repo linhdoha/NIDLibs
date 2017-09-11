@@ -39,6 +39,10 @@ package com.nidlab.kinect
 		public function getBodyIndexCamera():Camera {
 			return Camera.getCamera(String(getCameraIndex(Kinect.BODY_INDEX_CAMERA_ID)));
 		}
+		
+		public function getGSCamera():Camera {
+			return Camera.getCamera(String(getCameraIndex(Kinect.GS_CAMERA_ID)));
+		}
 	}
 
 }

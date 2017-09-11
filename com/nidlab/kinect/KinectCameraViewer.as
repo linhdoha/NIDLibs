@@ -2,6 +2,7 @@ package com.nidlab.kinect
 {
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
+	import flash.geom.Rectangle;
 	import flash.media.Camera;
 	import flash.media.Video;
 	
@@ -21,6 +22,7 @@ package com.nidlab.kinect
 		{
 			super();
 			this.mode = kinectCameraMode;
+			
 		}
 		
 		public function get mode():String
@@ -30,23 +32,19 @@ package com.nidlab.kinect
 		
 		public function set mode(value:String):void
 		{
+			var camWidth:int;
+			var camHeight:int;
+			var camFPS:int;
+			var cam:Camera;
+			
 			_mode = value;
 			switch (_mode)
 			{
 			case KinectCameraMode.COLOR_MODE:
-				
-				graphics.beginFill(0x000000, 0.2);
-				graphics.drawRoundRect(0, 0, Kinect.COLOR_CAMERA_WIDTH, Kinect.COLOR_CAMERA_HEIGHT, 20, 20);
-				graphics.endFill();
-				
-				var kinectCamera:Camera = KinectCameraManager.getInstance().getColorCamera();
-				kinectCamera.setMode(Kinect.COLOR_CAMERA_WIDTH, Kinect.COLOR_CAMERA_HEIGHT, Kinect.COLOR_CAMERA_FPS);
-				video = new Video(kinectCamera.width, kinectCamera.height);
-				video.attachCamera(kinectCamera);
-				this.mirrorMode = true;
-				videoHolder = new Sprite();
-				videoHolder.addChild(video);
-				addChild(videoHolder);
+				camWidth = Kinect.COLOR_CAMERA_WIDTH;
+				camHeight = Kinect.COLOR_CAMERA_HEIGHT;
+				camFPS = Kinect.COLOR_CAMERA_FPS;
+				cam = KinectCameraManager.getInstance().getColorCamera();
 				break;
 			case KinectCameraMode.IR_MODE:
 				
@@ -58,7 +56,27 @@ package com.nidlab.kinect
 			case KinectCameraMode.BODY_INDEX_MODE:
 				
 				break;
+			
+			case KinectCameraMode.GREEN_SCREEN_MODE:
+				camWidth = Kinect.GS_CAMERA_WIDTH;
+				camHeight = Kinect.GS_CAMERA_HEIGHT;
+				camFPS = Kinect.GS_CAMERA_FPS;
+				cam = KinectCameraManager.getInstance().getGSCamera();
+				break;
 			}
+			
+			graphics.beginFill(0x000000, 0.2);
+			graphics.drawRoundRect(0, 0, camWidth, camHeight, 20, 20);
+			graphics.endFill();
+			
+			var kinectCamera:Camera = cam;
+			kinectCamera.setMode(camWidth, camHeight, camFPS);
+			video = new Video(kinectCamera.width, kinectCamera.height);
+			video.attachCamera(kinectCamera);
+			this.mirrorMode = true;
+			videoHolder = new Sprite();
+			videoHolder.addChild(video);
+			addChild(videoHolder);
 		}
 		
 		public function get mirrorMode():Boolean
