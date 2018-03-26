@@ -16,7 +16,7 @@ package com.nidlab.kinect
 		private var _mode:String;
 		private var video:Video;
 		private var videoHolder:Sprite;
-		private var _mirrorMode:Boolean = true;
+		private var _mirrorMode:Boolean = false;
 		
 		public function KinectCameraViewer(kinectCameraMode:String = KinectCameraMode.COLOR_MODE)
 		{
@@ -73,7 +73,7 @@ package com.nidlab.kinect
 			kinectCamera.setMode(camWidth, camHeight, camFPS);
 			video = new Video(kinectCamera.width, kinectCamera.height);
 			video.attachCamera(kinectCamera);
-			this.mirrorMode = true;
+			this.mirrorMode = false;
 			videoHolder = new Sprite();
 			videoHolder.addChild(video);
 			addChild(videoHolder);

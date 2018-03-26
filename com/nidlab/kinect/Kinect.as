@@ -10,7 +10,7 @@ package com.nidlab.kinect
 	 */
 	public class Kinect extends EventDispatcher
 	{
-		public static const COLOR_CAMERA_ID:String = "KinectV2 Color";
+		public static const COLOR_CAMERA_ID:String = "KVYcam Video Driver";
 		public static const COLOR_CAMERA_WIDTH:int = 1920;
 		public static const COLOR_CAMERA_HEIGHT:int = 1080;
 		public static const COLOR_CAMERA_FPS:int = 30;
